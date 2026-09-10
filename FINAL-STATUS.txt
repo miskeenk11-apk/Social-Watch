@@ -1,0 +1,14 @@
+SOCIAL WATCH — FINAL SOURCE PACKAGE
+
+Included:
+- Android native WebView project (minSdk 21 / Android 5.0+ target)
+- Windows Electron project with NSIS + Portable build configuration
+- Current SOCIAL WATCH UI with YouTube, Facebook and TikTok only
+- No Instagram
+- No address bar / arbitrary web browsing
+- Platform allow-list navigation
+
+Important:
+This package is the final BUILD-READY SOURCE package. It is not a precompiled APK or EXE.
+Compilation requires Android SDK/Gradle for Android and Node/npm network-installed dependencies for Windows.
+Very old operating systems cannot be guaranteed to render current YouTube/Facebook/TikTok sites because those sites control their own browser/runtime requirements.

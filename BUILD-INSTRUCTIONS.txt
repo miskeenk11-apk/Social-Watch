@@ -1,0 +1,16 @@
+SOCIAL WATCH — STEP 3 BUILD
+
+WINDOWS:
+1. Install Node.js LTS.
+2. Open this folder in CMD/PowerShell.
+3. Run: npm install
+4. Run: npm run dist:win
+5. Installer and portable EXE will be placed in the dist folder.
+
+ANDROID:
+1. Open the android folder in Android Studio.
+2. Allow Gradle to install the required Android plugin/SDK if prompted.
+3. Build > Build APK(s).
+4. The Android project targets minSdk 21 (Android 5.0).
+
+Do not add general browser navigation. Keep the platform allow-list limited to YouTube, Facebook and TikTok.
