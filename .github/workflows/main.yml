@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "android/**"
+      - "SOCAIL WATCH2/android/**"
       - ".github/workflows/android-apk.yml"
 
 jobs:
@@ -27,11 +27,11 @@ jobs:
           gradle-version: "8.9"
 
       - name: Build APK
-        working-directory: android
+        working-directory: SOCAIL WATCH2/android
         run: gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SOCIAL-WATCH-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: SOCAIL WATCH2/android/app/build/outputs/apk/debug/*.apk
