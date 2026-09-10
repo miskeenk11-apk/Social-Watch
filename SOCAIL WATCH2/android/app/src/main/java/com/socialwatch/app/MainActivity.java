@@ -41,45 +41,42 @@ public class MainActivity extends Activity {
                 || u.startsWith("file:///");
     }
 
-    /*
-     * IMPORTANT:
-     * Desktop browser settings are now used ONLY for TikTok.
-     * Facebook returns to the original/default WebView behavior.
-     * YouTube is also unchanged.
-     */
-    private boolean isTikTok(String url) {
+    private boolean isFacebookOrTikTok(String url) {
         if (url == null) return false;
 
         String u = url.toLowerCase(Locale.US);
 
-        return u.startsWith("https://www.tiktok.com/")
+        return u.startsWith("https://www.facebook.com/")
+                || u.startsWith("https://m.facebook.com/")
+                || u.startsWith("https://facebook.com/")
+                || u.startsWith("https://www.tiktok.com/")
                 || u.startsWith("https://m.tiktok.com/")
                 || u.startsWith("https://tiktok.com/");
     }
 
     private void applySettingsForUrl(String url) {
-
         if (webView == null || defaultUserAgent == null) return;
 
         WebSettings settings = webView.getSettings();
 
-        if (isTikTok(url)) {
+        if (isFacebookOrTikTok(url)) {
 
-            // TikTok ONLY:
-            // Keep the newer desktop-browser method.
+            // Facebook + TikTok:
+            // Desktop browser User-Agent.
             settings.setUserAgentString(DESKTOP_USER_AGENT);
+
+            // Keep desktop layout from being automatically
+            // reduced to a very small frame.
             settings.setUseWideViewPort(false);
             settings.setLoadWithOverviewMode(false);
-            settings.setInitialScale(100);
 
         } else {
 
-            // Facebook + YouTube + SOCIAL WATCH home:
-            // Restore original WebView behavior.
+            // Original/default Android WebView behavior.
+            // YouTube remains unchanged.
             settings.setUserAgentString(defaultUserAgent);
             settings.setUseWideViewPort(defaultWideViewPort);
             settings.setLoadWithOverviewMode(defaultLoadWithOverviewMode);
-            settings.setInitialScale(0);
         }
     }
 
@@ -94,6 +91,7 @@ public class MainActivity extends Activity {
 
         WebSettings s = webView.getSettings();
 
+        // Save original WebView settings.
         defaultUserAgent = s.getUserAgentString();
         defaultWideViewPort = s.getUseWideViewPort();
         defaultLoadWithOverviewMode = s.getLoadWithOverviewMode();
