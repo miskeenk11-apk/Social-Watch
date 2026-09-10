@@ -1,37 +1,198 @@
-name: Android APK Build
+package com.socialwatch.app;
 
-on:
-  workflow_dispatch:
-  push:
-    paths:
-      - "SOCAIL WATCH2/android/**"
-      - ".github/workflows/android-apk.yml"
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+import java.util.Locale;
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+public class MainActivity extends Activity {
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+    private WebView webView;
+    private String defaultUserAgent;
+    private boolean defaultWideViewPort;
+    private boolean defaultLoadWithOverviewMode;
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
+    private static final String DESKTOP_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+            "AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/140.0.0.0 Safari/537.36";
 
-      - name: Build APK
-        working-directory: SOCAIL WATCH2/android
-        run: gradle assembleDebug --no-daemon
+    private boolean isAllowed(String url) {
+        if (url == null) return false;
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: SOCIAL-WATCH-APK
-          path: SOCAIL WATCH2/android/app/build/outputs/apk/debug/*.apk
+        String u = url.toLowerCase(Locale.US);
+
+        return u.startsWith("https://www.youtube.com/")
+                || u.startsWith("https://m.youtube.com/")
+                || u.startsWith("https://youtube.com/")
+                || u.startsWith("https://www.facebook.com/")
+                || u.startsWith("https://m.facebook.com/")
+                || u.startsWith("https://facebook.com/")
+                || u.startsWith("https://www.tiktok.com/")
+                || u.startsWith("https://m.tiktok.com/")
+                || u.startsWith("https://tiktok.com/")
+                || u.startsWith("file:///");
+    }
+
+    private boolean isFacebookOrTikTok(String url) {
+        if (url == null) return false;
+
+        String u = url.toLowerCase(Locale.US);
+
+        return u.startsWith("https://www.facebook.com/")
+                || u.startsWith("https://m.facebook.com/")
+                || u.startsWith("https://facebook.com/")
+                || u.startsWith("https://www.tiktok.com/")
+                || u.startsWith("https://m.tiktok.com/")
+                || u.startsWith("https://tiktok.com/");
+    }
+
+    private void applySettingsForUrl(String url) {
+        if (webView == null || defaultUserAgent == null) return;
+
+        WebSettings settings = webView.getSettings();
+
+        if (isFacebookOrTikTok(url)) {
+
+            // Facebook + TikTok only:
+            // make the site identify itself as a desktop browser.
+            settings.setUserAgentString(DESKTOP_USER_AGENT);
+
+            // Prevent the desktop page from being automatically
+            // reduced to a very small frame on old Android devices.
+            settings.setUseWideViewPort(false);
+            settings.setLoadWithOverviewMode(false);
+            settings.setInitialScale(100);
+
+        } else {
+
+            // Restore original Android WebView behavior.
+            // This keeps YouTube unchanged.
+            settings.setUserAgentString(defaultUserAgent);
+            settings.setUseWideViewPort(defaultWideViewPort);
+            settings.setLoadWithOverviewMode(defaultLoadWithOverviewMode);
+
+            // 0 = normal/default automatic scaling.
+            settings.setInitialScale(0);
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        webView = findViewById(R.id.webview);
+
+        WebSettings s = webView.getSettings();
+
+        // Save original WebView settings.
+        defaultUserAgent = s.getUserAgentString();
+        defaultWideViewPort = s.getUseWideViewPort();
+        defaultLoadWithOverviewMode = s.getLoadWithOverviewMode();
+
+        // Existing SOCIAL WATCH settings — unchanged.
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setMediaPlaybackRequiresUserGesture(false);
+        s.setSupportMultipleWindows(false);
+        s.setAllowFileAccess(false);
+        s.setAllowContentAccess(false);
+        s.setBuiltInZoomControls(false);
+        s.setDisplayZoomControls(false);
+
+        webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(
+                    WebView view,
+                    WebResourceRequest request) {
+
+                String url = request.getUrl().toString();
+
+                if (!isAllowed(url)) {
+                    return true;
+                }
+
+                applySettingsForUrl(url);
+                view.loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(
+                    WebView view,
+                    String url) {
+
+                if (!isAllowed(url)) {
+                    return true;
+                }
+
+                applySettingsForUrl(url);
+                view.loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(
+                    WebView view,
+                    String url,
+                    Bitmap favicon) {
+
+                if (!isAllowed(url)) {
+                    applySettingsForUrl(
+                            "file:///android_asset/index.html"
+                    );
+
+                    view.loadUrl(
+                            "file:///android_asset/index.html"
+                    );
+
+                    return;
+                }
+
+                applySettingsForUrl(url);
+            }
+        });
+
+        // Start with original/default settings.
+        applySettingsForUrl(
+                "file:///android_asset/index.html"
+        );
+
+        webView.loadUrl(
+                "file:///android_asset/index.html"
+        );
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        // Return to SOCIAL WATCH home.
+        // Restore original settings first.
+        applySettingsForUrl(
+                "file:///android_asset/index.html"
+        );
+
+        webView.loadUrl(
+                "file:///android_asset/index.html"
+        );
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if (webView != null) {
+            webView.destroy();
+        }
+
+        super.onDestroy();
+    }
+}
