@@ -14,6 +14,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private WebView webView;
+
     private String defaultUserAgent;
     private boolean defaultWideViewPort;
     private boolean defaultLoadWithOverviewMode;
@@ -40,45 +41,44 @@ public class MainActivity extends Activity {
                 || u.startsWith("file:///");
     }
 
-    private boolean isFacebookOrTikTok(String url) {
+    /*
+     * IMPORTANT:
+     * Desktop browser settings are now used ONLY for TikTok.
+     * Facebook returns to the original/default WebView behavior.
+     * YouTube is also unchanged.
+     */
+    private boolean isTikTok(String url) {
         if (url == null) return false;
 
         String u = url.toLowerCase(Locale.US);
 
-        return u.startsWith("https://www.facebook.com/")
-                || u.startsWith("https://m.facebook.com/")
-                || u.startsWith("https://facebook.com/")
-                || u.startsWith("https://www.tiktok.com/")
+        return u.startsWith("https://www.tiktok.com/")
                 || u.startsWith("https://m.tiktok.com/")
                 || u.startsWith("https://tiktok.com/");
     }
 
     private void applySettingsForUrl(String url) {
+
         if (webView == null || defaultUserAgent == null) return;
 
         WebSettings settings = webView.getSettings();
 
-        if (isFacebookOrTikTok(url)) {
+        if (isTikTok(url)) {
 
-            // Facebook + TikTok only:
-            // make the site identify itself as a desktop browser.
+            // TikTok ONLY:
+            // Keep the newer desktop-browser method.
             settings.setUserAgentString(DESKTOP_USER_AGENT);
-
-            // Prevent the desktop page from being automatically
-            // reduced to a very small frame on old Android devices.
             settings.setUseWideViewPort(false);
             settings.setLoadWithOverviewMode(false);
             settings.setInitialScale(100);
 
         } else {
 
-            // Restore original Android WebView behavior.
-            // This keeps YouTube unchanged.
+            // Facebook + YouTube + SOCIAL WATCH home:
+            // Restore original WebView behavior.
             settings.setUserAgentString(defaultUserAgent);
             settings.setUseWideViewPort(defaultWideViewPort);
             settings.setLoadWithOverviewMode(defaultLoadWithOverviewMode);
-
-            // 0 = normal/default automatic scaling.
             settings.setInitialScale(0);
         }
     }
@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -93,7 +94,6 @@ public class MainActivity extends Activity {
 
         WebSettings s = webView.getSettings();
 
-        // Save original WebView settings.
         defaultUserAgent = s.getUserAgentString();
         defaultWideViewPort = s.getUseWideViewPort();
         defaultLoadWithOverviewMode = s.getLoadWithOverviewMode();
@@ -147,6 +147,7 @@ public class MainActivity extends Activity {
                     Bitmap favicon) {
 
                 if (!isAllowed(url)) {
+
                     applySettingsForUrl(
                             "file:///android_asset/index.html"
                     );
@@ -176,7 +177,6 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
 
         // Return to SOCIAL WATCH home.
-        // Restore original settings first.
         applySettingsForUrl(
                 "file:///android_asset/index.html"
         );
