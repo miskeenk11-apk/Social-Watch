@@ -23,7 +23,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private WebView webView;
-    private Button backButton;
+    private View backButton;
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
 
@@ -179,17 +179,31 @@ public class MainActivity extends Activity {
     }
 
     private void addBackButtonOverlay() {
-        backButton = new Button(this);
-        backButton.setText("←");
-        backButton.setTextSize(36);
-        backButton.setTextColor(Color.WHITE);
-        backButton.setBackground(null);
-        backButton.setPadding(0, 0, 0, 0);
-        backButton.setGravity(Gravity.CENTER);
-        backButton.setAllCaps(false);
-        backButton.setMinWidth(0);
-        backButton.setMinHeight(0);
+        backButton = new View(this) {
+            @Override
+            protected void onDraw(android.graphics.Canvas canvas) {
+                super.onDraw(canvas);
+
+                android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                paint.setColor(Color.WHITE);
+                paint.setStyle(android.graphics.Paint.Style.STROKE);
+                paint.setStrokeWidth(dp(4));
+                paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+                paint.setStrokeJoin(android.graphics.Paint.Join.ROUND);
+
+                float left = dp(12);
+                float centerY = getHeight() / 2f;
+                float right = dp(40);
+                float head = dp(11);
+
+                canvas.drawLine(right, centerY, left, centerY, paint);
+                canvas.drawLine(left, centerY, left + head, centerY - head, paint);
+                canvas.drawLine(left, centerY, left + head, centerY + head, paint);
+            }
+        };
+
         backButton.setContentDescription("Back");
+        backButton.setClickable(true);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
