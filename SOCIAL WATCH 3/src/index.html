@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5bb9ee">
+<meta name="description" content="SOCIAL WATCH — lightweight four-service short-video browser">
+<title>SOCIAL WATCH</title>
+<style>
+:root{--sky:#5bb9ee;--sky2:#dff3ff;--ink:#123247;--muted:#5e7482;--white:#fff;--border:#c8e7f7}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#eaf8ff 0%,#cfeeff 100%);color:var(--ink);overflow:hidden}
+button{font:inherit}
+.app{height:100%;display:flex;flex-direction:column}
+header{height:74px;flex:0 0 74px;background:var(--sky);display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid rgba(0,0,0,.08)}
+.brand{font-size:25px;font-weight:800;letter-spacing:1.5px;color:#fff}
+.status{font-size:13px;color:#fff;opacity:.95}
+main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:24px}
+.home{width:min(760px,100%);text-align:center}
+.home h1{margin:0 0 8px;font-size:clamp(32px,6vw,54px);letter-spacing:2px}
+.home p{margin:0 auto 28px;color:var(--muted);font-size:15px;max-width:560px}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.service{min-height:128px;border:1px solid var(--border);border-radius:14px;background:#fff;cursor:pointer;font-size:22px;font-weight:800;color:var(--ink);box-shadow:0 4px 14px rgba(30,90,120,.08)}
+.service{position:relative;overflow:hidden;transition:transform .15s ease,box-shadow .15s ease}.service .brand-icon{display:block;width:48px;height:48px;margin:0 auto 10px}.service .brand-icon svg{width:100%;height:100%;display:block}.service .brand-name{display:block}.service-youtube{background:#ff0000;color:#fff;border-color:#ff0000}.service-youtube small{color:rgba(255,255,255,.9)}.service-facebook{background:#1877f2;color:#fff;border-color:#1877f2}.service-facebook small{color:rgba(255,255,255,.9)}.service-tiktok{background:#111;color:#fff;border-color:#111}.service-tiktok small{color:rgba(255,255,255,.85)}
+.service:hover,.service:focus-visible{outline:3px solid rgba(31,139,199,.3);transform:translateY(-1px)}
+.service small{display:block;margin-top:9px;font-size:12px;font-weight:400;color:var(--muted)}
+.about-panel{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.45)}.about-panel.hidden{display:none!important}.about-card{position:relative;width:min(520px,100%);background:#fff;border-radius:16px;padding:30px 28px;box-shadow:0 12px 40px rgba(0,0,0,.25);text-align:left}.about-card h2{margin:0 0 14px}.about-card p{color:var(--muted);line-height:1.55}.about-close{position:absolute;right:12px;top:10px;border:0;background:transparent;font-size:30px;line-height:1;cursor:pointer;color:var(--ink)}
+.about{margin-top:20px;border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px 18px;cursor:pointer;color:var(--ink);font-weight:700}
+footer{padding:10px;text-align:center;color:#577383;font-size:12px}
+.viewer{height:100%;width:100%;display:none;flex-direction:column;background:#fff}
+.toolbar{height:56px;flex:0 0 56px;background:var(--sky);display:flex;align-items:center;gap:8px;padding:8px}
+.tool{border:0;border-radius:8px;padding:9px 13px;background:#fff;color:var(--ink);font-weight:700;cursor:pointer}
+.tool:focus-visible{outline:3px solid rgba(255,255,255,.75)}
+.title{color:#fff;font-weight:800;margin-left:4px}
+.framewrap{position:relative;flex:1;min-height:0;background:#f5fbff}
+iframe{width:100%;height:100%;border:0;display:block}
+.fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;background:#f5fbff}
+.card{max-width:500px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:28px;box-shadow:0 4px 14px rgba(30,90,120,.08)}
+.card h2{margin-top:0}.card p{color:var(--muted);line-height:1.5}
+.open{display:inline-block;border:0;border-radius:9px;background:var(--sky);color:#fff;padding:11px 18px;font-weight:800;cursor:pointer}
+.hidden{display:none!important}
+@media(max-width:900px){.services{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.services{grid-template-columns:1fr}.service{min-height:82px}.home{max-width:430px}header{height:64px;flex-basis:64px}}
+
+
+/* PLATFORM SEARCH BOXES — only the requested search addition */
+.service-box{min-width:0;display:flex;flex-direction:column;gap:9px}
+.platform-search{display:flex;width:100%;gap:6px}
+.platform-search input{flex:1 1 0;width:0;min-width:0;height:44px;border:1px solid var(--border);border-radius:9px;padding:0 11px;background:#fff;color:var(--ink);font-size:14px;outline:none}
+.platform-search input:focus{border-color:#5bb9ee;box-shadow:0 0 0 3px rgba(91,185,238,.18)}
+.platform-search button{flex:1 1 0;min-width:0;height:44px;border:0;border-radius:9px;padding:0 12px;background:var(--sky);color:#fff;font-weight:800;cursor:pointer;touch-action:manipulation}
+.platform-search button:focus-visible{outline:3px solid rgba(31,139,199,.3);outline-offset:1px}
+.service-box .service{width:100%;min-height:128px}
+@media(max-width:650px){.platform-search input{height:46px}.platform-search button{height:46px}.service-box .service{min-height:82px}}
+
+/* ALL-DEVICES COMPATIBILITY — responsive only, no service behavior changes */
+html,body{min-height:100%;height:100%;margin:0;}
+body{min-height:100dvh;overflow:hidden;}
+.app{min-height:100dvh;box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
+main{min-height:0;}
+button,a{touch-action:manipulation;}
+@supports not (height:100dvh){
+  body{min-height:100vh;}
+  .app{min-height:100vh;}
+}
+@media (max-width:900px){
+  header{padding-left:18px;padding-right:18px;}
+  .home{width:min(92vw,760px);}
+}
+@media (max-width:640px){
+  header{height:auto;min-height:58px;padding:10px 14px;box-sizing:border-box;}
+  main{overflow:auto;align-items:flex-start;padding:16px 12px 22px;box-sizing:border-box;}
+  .home{width:100%;margin:auto 0;}
+  .home h1{font-size:clamp(26px,8vw,42px);line-height:1.08;}
+  .home p{font-size:14px;line-height:1.45;}
+  .services{grid-template-columns:1fr;gap:12px;width:min(100%,430px);margin-left:auto;margin-right:auto;}
+  .services button{min-height:52px;font-size:15px;padding:14px 16px;}
+  .viewer-top{padding:10px 12px;gap:8px;flex-wrap:wrap;}
+  .viewer-top .title{min-width:0;flex:1 1 150px;}
+  .viewer-top button{min-height:44px;}
+  .fallback{width:min(92vw,520px);box-sizing:border-box;padding:24px 18px;}
+}
+@media (min-width:641px) and (max-width:1024px){
+  .services{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-height:620px) and (orientation:landscape){
+  main{overflow:auto;align-items:flex-start;padding-top:10px;padding-bottom:16px;}
+  .home{margin:auto 0;}
+  .home h1{font-size:clamp(24px,6vw,38px);}
+  .home p{margin-top:6px;margin-bottom:10px;}
+  .services{gap:10px;}
+  .services button{min-height:46px;padding:10px 14px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">SOCIAL WATCH</div>
+  <div id="net" class="status">Checking connection…</div>
+</header>
+
+<main>
+  <section id="home" class="home" aria-label="Social Watch home">
+    <h1>SOCIAL WATCH</h1>
+    <p>Lightweight short-video access for YouTube Shorts, Facebook Reels and TikTok.</p>
+    <div class="services">
+      <div class="service-box">
+        <form class="platform-search" data-search="youtube" autocomplete="off">
+          <input type="search" aria-label="Search YouTube" placeholder="Search YouTube…" enterkeyhint="search">
+          <button type="submit" aria-label="Search YouTube">SEARCH</button>
+        </form>
+        <button class="service service-youtube" data-service="youtube">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8Z"/><path fill="#fff" d="m9.7 15.9 5.9-3.4-5.9-3.4v6.8Z"/></svg>
+          </span><span class="brand-name">YOUTUBE</span><small>Shorts</small>
+        </button>
+      </div>
+      <div class="service-box">
+        <form class="platform-search" data-search="facebook" autocomplete="off">
+          <input type="search" aria-label="Search Facebook" placeholder="Search Facebook…" enterkeyhint="search">
+          <button type="submit" aria-label="Search Facebook">SEARCH</button>
+        </form>
+        <button class="service service-facebook" data-service="facebook">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M24 12a12 12 0 1 0-13.9 11.8v-8.3H7.1V12h3V9.3c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.3A12 12 0 0 0 24 12Z"/><path fill="#fff" d="M13.8 15.5h2.9l.5-3.5h-3.4V9.7c0-1 .5-1.9 2-1.9h1.5v-3s-1.4-.2-2.7-.2c-2.7 0-4.5 1.7-4.5 4.7V12h-3v3.5h3v8.3c.6.1 1.2.1 1.8.1.6 0 1.2 0 1.8-.1v-8.3Z"/></svg>
+          </span><span class="brand-name">FACEBOOK</span><small>Reels / short videos</small>
+        </button>
+      </div>
+      <div class="service-box">
+        <form class="platform-search" data-search="tiktok" autocomplete="off">
+          <input type="search" aria-label="Search TikTok" placeholder="Search TikTok…" enterkeyhint="search">
+          <button type="submit" aria-label="Search TikTok">SEARCH</button>
+        </form>
+        <button class="service service-tiktok" data-service="tiktok">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16.7 3c.3 1.8 1.4 3.2 3.3 3.8v3.1c-1.5-.1-2.8-.6-4-1.4v6.2c0 4-2.9 6.3-6.4 6.3-3.1 0-5.6-2.4-5.6-5.4 0-3.5 3-5.8 6.3-5.8.3 0 .7 0 1 .1v3.2c-.3-.1-.7-.2-1-.2-1.4 0-2.6 1-2.6 2.5 0 1.3 1.1 2.3 2.4 2.3 1.6 0 2.6-1 2.6-3V3h4Z"/></svg>
+          </span><span class="brand-name">TIKTOK</span><small>Short videos</small>
+        </button>
+      </div>
+    </div>
+    <button id="aboutBtn" class="about" type="button">ABOUT</button>
+    <div id="aboutPanel" class="about-panel hidden" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+      <div class="about-card">
+        <button id="aboutClose" class="about-close" type="button" aria-label="Close About">×</button>
+        <h2 id="aboutTitle">SOCIAL WATCH</h2>
+        <p>A lightweight app for accessing YouTube Shorts, Facebook Reels and TikTok short videos.</p>
+        <p>No SOCIAL WATCH account is required. External platforms remain responsible for their own login, security and availability.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="viewer" class="viewer" aria-label="Video service">
+    <div class="toolbar">
+      <button id="backBtn" class="tool" type="button">← BACK / HOME</button>
+      <div id="viewTitle" class="title"></div>
+    </div>
+    <div class="framewrap">
+      <iframe id="frame" title="External video service" referrerpolicy="strict-origin-when-cross-origin"
+              allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+              sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts"></iframe>
+      <div id="fallback" class="fallback">
+        <div class="card">
+          <h2 id="fallbackTitle">Service unavailable in this view</h2>
+          <p id="fallbackText">The external platform may block embedded viewing or require a newer browser/login. SOCIAL WATCH does not bypass platform security or access restrictions.</p>
+          <button id="openExternal" class="open">OPEN SERVICE</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer id="footer">Maximum practical compatibility • Lightweight • No SOCIAL WATCH account</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* Central service configuration: change destinations here only. */
+var SERVICES = {
+  youtube:   {name:"YOUTUBE",   url:"https://www.youtube.com/shorts/"},
+  facebook:  {name:"FACEBOOK",  url:"https://www.facebook.com/reels/"},
+  tiktok:    {name:"TIKTOK",    url:"https://www.tiktok.com/"},
+};
+
+var home=document.getElementById("home");
+var viewer=document.getElementById("viewer");
+var frame=document.getElementById("frame");
+var fallback=document.getElementById("fallback");
+var title=document.getElementById("viewTitle");
+var net=document.getElementById("net");
+var footer=document.getElementById("footer");
+var openExternal=document.getElementById("openExternal");
+var current=null;
+var fallbackTimer=null;
+
+/* PLATFORM SEARCH — opens the real platform search directly. */
+var SEARCH_URLS = {
+  youtube: function(q){ return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); },
+  facebook: function(q){ return "https://www.facebook.com/search/videos/?q=" + encodeURIComponent(q); },
+  tiktok: function(q){ return "https://www.tiktok.com/search?q=" + encodeURIComponent(q); }
+};
+
+document.querySelectorAll(".platform-search").forEach(function(form){
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var key=form.getAttribute("data-search");
+    var input=form.querySelector("input");
+    var q=(input.value || "").trim();
+    if(!q) { input.focus(); return; }
+    window.location.href=SEARCH_URLS[key](q);
+  });
+});
+
+function updateNetwork(){
+  net.textContent = navigator.onLine ? "Internet: Available" : "Internet: Unavailable";
+}
+window.addEventListener("online",updateNetwork);
+window.addEventListener("offline",updateNetwork);
+updateNetwork();
+
+function showHome(){
+  if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
+  frame.src="about:blank";
+  fallback.classList.add("hidden");
+  viewer.style.display="none";
+  home.style.display="block";
+  footer.classList.remove("hidden");
+  current=null;
+  var first=document.querySelector(".service");
+  if(first) first.focus();
+}
+
+function showFallback(){
+  if(!current) return;
+  document.getElementById("fallbackTitle").textContent=current.name+" cannot be embedded here";
+  document.getElementById("fallbackText").textContent =
+    "The platform may block embedded viewing, require login, or require a newer browser. SOCIAL WATCH will not bypass authentication, DRM, anti-bot systems, regional restrictions, or other platform security.";
+  fallback.classList.remove("hidden");
+}
+
+function openService(key){
+  current=SERVICES[key];
+  if(!navigator.onLine){
+    viewer.style.display="flex"; home.style.display="none"; footer.classList.add("hidden");
+    title.textContent=current.name;
+    frame.src="about:blank"; showFallback();
+    document.getElementById("fallbackTitle").textContent="Internet connection is unavailable";
+    document.getElementById("fallbackText").textContent="Please check your internet connection and try again.";
+    openExternal.classList.add("hidden");
+    return;
+  }
+
+  /* IMPORTANT: YouTube, Facebook and TikTok can block iframe embedding.
+     Use direct navigation so the real platform opens normally. */
+  window.location.href=current.url;
+}
+
+// When the user presses the browser Back button after visiting an external service,
+// return to a clean SOCIAL WATCH Home screen instead of restoring a blocked iframe.
+window.addEventListener("pageshow",function(e){
+  var nav=performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+  if(e.persisted || (nav && nav.type==="back_forward")) showHome();
+});
+
+document.querySelectorAll(".service").forEach(function(btn){
+  btn.addEventListener("click",function(){openService(btn.getAttribute("data-service"));});
+});
+document.getElementById("backBtn").addEventListener("click",showHome);
+var aboutPanel=document.getElementById("aboutPanel");
+var aboutClose=document.getElementById("aboutClose");
+document.getElementById("aboutBtn").addEventListener("click",function(){
+  aboutPanel.classList.remove("hidden");
+  aboutClose.focus();
+});
+aboutClose.addEventListener("click",function(){ aboutPanel.classList.add("hidden"); });
+aboutPanel.addEventListener("click",function(e){ if(e.target===aboutPanel) aboutPanel.classList.add("hidden"); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") aboutPanel.classList.add("hidden"); });
+openExternal.addEventListener("click",function(){
+  if(current) window.location.href=current.url;
+});
+frame.addEventListener("load",function(){
+  if(fallbackTimer) clearTimeout(fallbackTimer);
+  fallbackTimer=setTimeout(function(){
+    try{
+      var d=frame.contentDocument;
+      if(!d || !d.body || !d.body.innerHTML.trim()) showFallback();
+    }catch(e){ /* cross-origin content is normal */ }
+  },1800);
+});
+
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape" && viewer.style.display==="flex"){e.preventDefault();showHome();}
+  if(e.altKey && e.key==="Home"){e.preventDefault();showHome();}
+});
+
+window.SOCIAL_WATCH = {version:"1.0", services:SERVICES, home:showHome};
+})();
+</script>
+</body>
+</html>

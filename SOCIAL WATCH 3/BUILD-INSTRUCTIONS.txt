@@ -1,0 +1,10 @@
+SOCIAL WATCH - GitHub APK Build
+
+1. Upload ALL folders/files from this ZIP to the ROOT of the GitHub repository.
+2. The .github/workflows/build-apk.yml file is included for the cloud APK build.
+3. On GitHub open Actions -> Build SOCIAL WATCH APK -> Run workflow.
+4. After the build finishes, open the workflow run and download the artifact:
+   social-watch-debug-apk
+
+No Gradle wrapper is required; GitHub Actions installs Gradle 8.9 automatically.
+App code and existing Android configuration are unchanged.

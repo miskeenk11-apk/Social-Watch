@@ -1,0 +1,24 @@
+{
+  "name": "social-watch",
+  "version": "1.1.0",
+  "private": true,
+  "description": "SOCIAL WATCH dedicated YouTube, Facebook and TikTok short-video app",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^38.1.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.socialwatch.app",
+    "productName": "SOCIAL WATCH",
+    "directories": {"output": "dist"},
+    "files": ["src/**/*", "desktop/**/*", "package.json"],
+    "win": {"target": ["nsis", "portable"]},
+    "nsis": {"oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true}
+  }
+}
