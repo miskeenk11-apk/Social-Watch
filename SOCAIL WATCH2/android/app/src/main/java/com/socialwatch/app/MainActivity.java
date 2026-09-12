@@ -177,21 +177,36 @@ public class MainActivity extends Activity {
 
         networkCallback = null;
     }
+private void addBackButtonOverlay() {
+    backButton = new Button(this);
+    backButton.setText("←");
+    backButton.setTextSize(30);
+    backButton.setTextColor(Color.WHITE);
+    backButton.setBackground(null);
+    backButton.setPadding(0, 0, 0, 0);
+    backButton.setGravity(Gravity.CENTER);
+    backButton.setAllCaps(false);
+    backButton.setMinWidth(0);
+    backButton.setMinHeight(0);
+    backButton.setContentDescription("Back");
 
-    private void addBackButtonOverlay() {
-        backButton = new Button(this);
-        backButton.setText("‹");
-        backButton.setTextSize(32);
-        backButton.setTextColor(Color.WHITE);
-        backButton.setBackgroundColor(Color.rgb(91, 185, 238));
-        backButton.setGravity(Gravity.CENTER);
-        backButton.setAllCaps(false);
-        backButton.setContentDescription("Back");
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goBackStepByStep();
-            }
+    backButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            goBackStepByStep();
+        }
+    });
+
+    FrameLayout.LayoutParams params =
+            new FrameLayout.LayoutParams(dp(50), dp(50));
+
+    params.gravity = Gravity.TOP | Gravity.START;
+    params.leftMargin = dp(8);
+    params.topMargin = dp(8);
+
+    addContentView(backButton, params);
+    backButton.setVisibility(View.GONE);
+}
         });
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(dp(44), dp(44));
