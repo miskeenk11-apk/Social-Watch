@@ -75,10 +75,12 @@ public class MainActivity extends Activity {
         WebSettings settings = webView.getSettings();
 
         if (isTikTok(url)) {
+            // TikTok ONLY keeps the newer desktop-browser method.
             settings.setUserAgentString(DESKTOP_USER_AGENT);
             settings.setUseWideViewPort(false);
             settings.setLoadWithOverviewMode(false);
         } else {
+            // YouTube + Facebook + SOCIAL WATCH home use original/default WebView settings.
             settings.setUserAgentString(defaultUserAgent);
             settings.setUseWideViewPort(defaultWideViewPort);
             settings.setLoadWithOverviewMode(defaultLoadWithOverviewMode);
@@ -102,8 +104,7 @@ public class MainActivity extends Activity {
 
     private boolean hasInternetConnection() {
         if (connectivityManager == null) {
-            connectivityManager =
-                    (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         }
 
         if (connectivityManager == null) return false;
@@ -112,25 +113,18 @@ public class MainActivity extends Activity {
             Network network = connectivityManager.getActiveNetwork();
             if (network == null) return false;
 
-            NetworkCapabilities caps =
-                    connectivityManager.getNetworkCapabilities(network);
-
+            NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(network);
             if (caps == null) return false;
 
-            boolean transport =
-                    caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            boolean transport = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                     || caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                     || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
 
-            boolean validated =
-                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-
+            boolean validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
             return transport && validated;
         }
 
-        android.net.NetworkInfo info =
-                connectivityManager.getActiveNetworkInfo();
-
+        android.net.NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         return info != null && info.isConnected();
     }
 
@@ -138,14 +132,11 @@ public class MainActivity extends Activity {
         if (webView == null) return;
 
         final boolean available = hasInternetConnection();
-
         webView.post(new Runnable() {
             @Override
             public void run() {
                 webView.evaluateJavascript(
-                        "if(window.SOCIAL_WATCH&&window.SOCIAL_WATCH.setNetworkStatus)" +
-                        "{window.SOCIAL_WATCH.setNetworkStatus(" +
-                        available + ");}",
+                        "if(window.SOCIAL_WATCH&&window.SOCIAL_WATCH.setNetworkStatus){window.SOCIAL_WATCH.setNetworkStatus(" + available + ");}",
                         null
                 );
             }
@@ -153,16 +144,10 @@ public class MainActivity extends Activity {
     }
 
     private void registerNetworkCallback() {
-        connectivityManager =
-                (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-
-        if (connectivityManager == null
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            return;
-        }
+        connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (connectivityManager == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
 
         networkCallback = new ConnectivityManager.NetworkCallback() {
-
             @Override
             public void onAvailable(Network network) {
                 sendNetworkStatusToPage();
@@ -174,9 +159,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onCapabilitiesChanged(
-                    Network network,
-                    NetworkCapabilities networkCapabilities) {
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
                 sendNetworkStatusToPage();
             }
         };
@@ -185,11 +168,7 @@ public class MainActivity extends Activity {
     }
 
     private void unregisterNetworkCallback() {
-        if (connectivityManager == null
-                || networkCallback == null
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            return;
-        }
+        if (connectivityManager == null || networkCallback == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return;
 
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback);
@@ -200,24 +179,17 @@ public class MainActivity extends Activity {
     }
 
     private void addBackButtonOverlay() {
-
         backButton = new Button(this);
-
-        // Clear white back arrow only
         backButton.setText("←");
-        backButton.setTextSize(30);
+        backButton.setTextSize(36);
         backButton.setTextColor(Color.WHITE);
-
-        // No blue box / no background
         backButton.setBackground(null);
         backButton.setPadding(0, 0, 0, 0);
-
         backButton.setGravity(Gravity.CENTER);
         backButton.setAllCaps(false);
         backButton.setMinWidth(0);
         backButton.setMinHeight(0);
         backButton.setContentDescription("Back");
-
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,30 +197,23 @@ public class MainActivity extends Activity {
             }
         });
 
-        FrameLayout.LayoutParams params =
-                new FrameLayout.LayoutParams(dp(50), dp(50));
-
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(dp(54), dp(54));
         params.gravity = Gravity.TOP | Gravity.START;
         params.leftMargin = dp(8);
         params.topMargin = dp(8);
 
         addContentView(backButton, params);
-
-        // Hidden on SOCIAL WATCH home
         backButton.setVisibility(View.GONE);
     }
 
     private int dp(int value) {
-        return Math.round(
-                value * getResources().getDisplayMetrics().density
-        );
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         webView = findViewById(R.id.webview);
@@ -257,10 +222,9 @@ public class MainActivity extends Activity {
 
         defaultUserAgent = s.getUserAgentString();
         defaultWideViewPort = s.getUseWideViewPort();
-        defaultLoadWithOverviewMode =
-                s.getLoadWithOverviewMode();
+        defaultLoadWithOverviewMode = s.getLoadWithOverviewMode();
 
-        // Existing SOCIAL WATCH settings
+        // Existing SOCIAL WATCH settings — unchanged.
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
@@ -276,50 +240,33 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
-            public boolean shouldOverrideUrlLoading(
-                    WebView view,
-                    WebResourceRequest request) {
-
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
 
                 if (!isAllowed(url)) return true;
 
                 applySettingsForUrl(url);
                 updateBackButtonVisibility(url);
-
                 view.loadUrl(url);
-
                 return true;
             }
 
             @Override
-            public boolean shouldOverrideUrlLoading(
-                    WebView view,
-                    String url) {
-
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (!isAllowed(url)) return true;
 
                 applySettingsForUrl(url);
                 updateBackButtonVisibility(url);
-
                 view.loadUrl(url);
-
                 return true;
             }
 
             @Override
-            public void onPageStarted(
-                    WebView view,
-                    String url,
-                    Bitmap favicon) {
-
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 if (!isAllowed(url)) {
-
                     applySettingsForUrl(HOME_URL);
                     updateBackButtonVisibility(HOME_URL);
-
                     view.loadUrl(HOME_URL);
-
                     return;
                 }
 
@@ -329,10 +276,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onPageFinished(
-                    WebView view,
-                    String url) {
-
+            public void onPageFinished(WebView view, String url) {
                 updateBackButtonVisibility(url);
                 sendNetworkStatusToPage();
             }
@@ -340,7 +284,6 @@ public class MainActivity extends Activity {
 
         applySettingsForUrl(HOME_URL);
         updateBackButtonVisibility(HOME_URL);
-
         webView.loadUrl(HOME_URL);
     }
 
@@ -351,7 +294,6 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-
         unregisterNetworkCallback();
 
         if (webView != null) {
