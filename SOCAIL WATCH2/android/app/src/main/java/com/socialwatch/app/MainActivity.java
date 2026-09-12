@@ -180,8 +180,8 @@ public class MainActivity extends Activity {
 
     private void addBackButtonOverlay() {
         backButton = new Button(this);
-        backButton.setText("←");
-        backButton.setTextSize(20);
+        backButton.setText("‹");
+        backButton.setTextSize(32);
         backButton.setTextColor(Color.WHITE);
         backButton.setBackgroundColor(Color.rgb(91, 185, 238));
         backButton.setGravity(Gravity.CENTER);
